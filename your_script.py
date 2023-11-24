@@ -1,12 +1,14 @@
 import re
 from telegram import Bot
 import requests
+from bs4 import BeautifulSoup
 
 # تنظیمات
 TELEGRAM_TOKEN = "6520725138:AAF9YpmlJ0ypzFyZwaNr0hf_60xh9RW_kFc"
 CHANNEL_ID = "@TVCminer"
 GITHUB_REPO = 'https://api.github.com/repos/mmjavadgh/v2rayPy/contents/links.txt'
 GITHUB_TOKEN = "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"
+CHANNEL_URL = 'https://t.me/TVCminer'
 
 # الگوی شناسایی لینک‌های v2ray
 v2ray_link_pattern = re.compile(r'vmess://[a-zA-Z0-9+/=_-]+')
@@ -17,21 +19,16 @@ def get_v2ray_links_from_text(text):
     return links
 
 def get_links_from_channel():
-    bot = Bot(token=TELEGRAM_TOKEN)
     try:
-        # استفاده از get_chat برای دریافت اطلاعات کانال
-        chat = bot.get_chat(CHANNEL_ID)
-        # استفاده از get_messages برای دریافت پیام‌ها
-        messages = chat.get_messages(limit=10)  # تعداد پیام‌ها را تغییر دهید اگر نیاز دارید
+        response = requests.get(CHANNEL_URL)
+        soup = BeautifulSoup(response.text, 'html.parser')
 
         links = []
-        for message in messages:
-            if message.entities:
-                for entity in message.entities:
-                    if entity.type == 'url':
-                        # افزودن لینک‌های v2ray به لیست لینک‌ها
-                        v2ray_links = get_v2ray_links_from_text(message.text[entity.offset:entity.offset + entity.length])
-                        links.extend(v2ray_links)
+        for a_tag in soup.find_all('a', href=True):
+            link = a_tag['href']
+            # افزودن شرط مناسب برای شناسایی لینک‌های مرتبط با v2ray
+            if 'v2ray' in link:
+                links.append(link)
 
         return links
     except Exception as e:
