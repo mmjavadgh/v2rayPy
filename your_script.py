@@ -22,7 +22,7 @@ def get_links_from_channel():
         # استفاده از get_chat برای دریافت اطلاعات کانال
         chat = bot.get_chat(CHANNEL_ID)
         # استفاده از get_messages برای دریافت پیام‌ها
-        messages = bot.get_messages(chat_id=CHANNEL_ID, limit=10)  # تعداد پیام‌ها را تغییر دهید اگر نیاز دارید
+        messages = chat.get_messages(limit=10)  # تعداد پیام‌ها را تغییر دهید اگر نیاز دارید
 
         links = []
         for message in messages:
