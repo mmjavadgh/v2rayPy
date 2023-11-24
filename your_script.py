@@ -1,14 +1,12 @@
 import re
 from telegram import Bot
 import requests
-from bs4 import BeautifulSoup
 
 # تنظیمات
 TELEGRAM_TOKEN = "6520725138:AAF9YpmlJ0ypzFyZwaNr0hf_60xh9RW_kFc"
 CHANNEL_ID = "@TVCminer"
 GITHUB_REPO = 'https://api.github.com/repos/mmjavadgh/v2rayPy/contents/links.txt'
 GITHUB_TOKEN = "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"
-CHANNEL_URL = 'https://t.me/TVCminer'
 
 # الگوی شناسایی لینک‌های v2ray
 v2ray_link_pattern = re.compile(r'vmess://[a-zA-Z0-9+/=_-]+')
