@@ -18,18 +18,25 @@ def get_v2ray_links_from_text(text):
 
 def get_links_from_channel():
     bot = Bot(token=TELEGRAM_TOKEN)
-    messages = bot.get_chat_history(chat_id=CHANNEL_ID, limit=10)  # تعداد پیام‌ها را تغییر دهید اگر نیاز دارید
+    try:
+        # استفاده از get_chat برای دریافت اطلاعات کانال
+        chat = bot.get_chat(CHANNEL_ID)
+        # استفاده از get_history برای دریافت تاریخچه چت
+        messages = chat.get_history(limit=10)  # تعداد پیام‌ها را تغییر دهید اگر نیاز دارید
 
-    links = []
-    for message in messages:
-        if message.entities:
-            for entity in message.entities:
-                if entity.type == 'url':
-                    # افزودن لینک‌های v2ray به لیست لینک‌ها
-                    v2ray_links = get_v2ray_links_from_text(message.text[entity.offset:entity.offset + entity.length])
-                    links.extend(v2ray_links)
+        links = []
+        for message in messages:
+            if message.entities:
+                for entity in message.entities:
+                    if entity.type == 'url':
+                        # افزودن لینک‌های v2ray به لیست لینک‌ها
+                        v2ray_links = get_v2ray_links_from_text(message.text[entity.offset:entity.offset + entity.length])
+                        links.extend(v2ray_links)
 
-    return links
+        return links
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return []
 
 def update_github_file(links):
     headers = {
