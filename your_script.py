@@ -2,7 +2,7 @@ import requests
 
 # تنظیمات
 CHANNEL_USERNAME = "TVCminer"
-GITHUB_REPO = 'https://api.github.com/repos/mmjavadgh/v2rayPy/contents/links.txt'
+GITHUB_REPO = 'https://raw.githubusercontent.com/mmjavadgh/v2rayPy/124aa7e8d5a28659c2b77174861a52ad8e2a7aa7/links.txt'
 GITHUB_TOKEN = "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"
 
 def get_text_from_channel():
@@ -30,22 +30,12 @@ def update_github_file(text):
         'Authorization': f'token {GITHUB_TOKEN}',
     }
 
-    # دریافت محتوای فایل از گیت‌هاب
-    current_content = requests.get(GITHUB_REPO, headers=headers).json()
-
-    if 'content' not in current_content:
-        print("Error: Couldn't retrieve file content from GitHub.")
-        return
-
-    current_sha = current_content['sha']
-
     # ایجاد محتوای جدید با متن دریافتی
     new_content = text
 
     data = {
         'message': 'Update links.txt',
         'content': new_content,
-        'sha': current_sha,
     }
 
     # ارسال درخواست به گیت‌هاب برای به‌روزرسانی فایل
