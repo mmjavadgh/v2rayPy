@@ -21,8 +21,8 @@ def get_links_from_channel():
     try:
         # استفاده از get_chat برای دریافت اطلاعات کانال
         chat = bot.get_chat(CHANNEL_ID)
-        # استفاده از get_history برای دریافت تاریخچه چت
-        messages = chat.get_history(limit=10)  # تعداد پیام‌ها را تغییر دهید اگر نیاز دارید
+        # استفاده از get_messages برای دریافت پیام‌ها
+        messages = chat.get_messages(limit=10)  # تعداد پیام‌ها را تغییر دهید اگر نیاز دارید
 
         links = []
         for message in messages:
