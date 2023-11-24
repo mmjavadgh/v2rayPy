@@ -1,10 +1,8 @@
 import re
-from telegram import Bot
 import requests
 
 # تنظیمات
-TELEGRAM_TOKEN = "6520725138:AAF9YpmlJ0ypzFyZwaNr0hf_60xh9RW_kFc"
-CHANNEL_ID = "@TVCminer"
+CHANNEL_USERNAME = "TVCminer"
 GITHUB_REPO = 'https://api.github.com/repos/mmjavadgh/v2rayPy/contents/links.txt'
 GITHUB_TOKEN = "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"
 
@@ -18,24 +16,17 @@ def get_v2ray_links_from_text(text):
 
 def get_links_from_channel():
     try:
-        bot = Bot(token=TELEGRAM_TOKEN)
+        # استفاده از تلگرام وب برای دریافت محتوای کانال
+        url = f'https://t.me/{CHANNEL_USERNAME}'
+        response = requests.get(url)
         
-        # استفاده از get_chat برای دریافت اطلاعات کانال
-        chat = bot.get_chat(CHANNEL_ID)
-        
-        # استفاده از get_messages برای دریافت پیام‌ها
-        messages = bot.get_messages(chat_id=CHANNEL_ID, limit=10)  # تعداد پیام‌ها را تغییر دهید اگر نیاز دارید
-
-        links = []
-        for message in messages:
-            if message.entities:
-                for entity in message.entities:
-                    if entity.type == 'url':
-                        # افزودن لینک‌های v2ray به لیست لینک‌ها
-                        v2ray_links = get_v2ray_links_from_text(message.text[entity.offset:entity.offset + entity.length])
-                        links.extend(v2ray_links)
-
-        return links
+        if response.status_code == 200:
+            # یافتن لینک‌های v2ray از محتوای دریافتی
+            v2ray_links = get_v2ray_links_from_text(response.text)
+            return v2ray_links
+        else:
+            print(f"Error: Unable to fetch content from the channel. Status code: {response.status_code}")
+            return []
     except Exception as e:
         print(f"An error occurred: {e}")
         return []
