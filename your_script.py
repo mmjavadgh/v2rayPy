@@ -20,15 +20,22 @@ def get_v2ray_links_from_text(text):
 
 def get_links_from_channel():
     try:
-        response = requests.get(CHANNEL_URL)
-        soup = BeautifulSoup(response.text, 'html.parser')
+        bot = Bot(token=TELEGRAM_TOKEN)
+        
+        # استفاده از get_chat برای دریافت اطلاعات کانال
+        chat = bot.get_chat(CHANNEL_ID)
+        
+        # استفاده از get_messages برای دریافت پیام‌ها
+        messages = bot.get_messages(chat_id=CHANNEL_ID, limit=10)  # تعداد پیام‌ها را تغییر دهید اگر نیاز دارید
 
         links = []
-        for a_tag in soup.find_all('a', href=True):
-            link = a_tag['href']
-            # افزودن شرط مناسب برای شناسایی لینک‌های مرتبط با v2ray
-            if 'v2ray' in link:
-                links.append(link)
+        for message in messages:
+            if message.entities:
+                for entity in message.entities:
+                    if entity.type == 'url':
+                        # افزودن لینک‌های v2ray به لیست لینک‌ها
+                        v2ray_links = get_v2ray_links_from_text(message.text[entity.offset:entity.offset + entity.length])
+                        links.extend(v2ray_links)
 
         return links
     except Exception as e:
