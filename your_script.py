@@ -1,12 +1,20 @@
-import requests
+import re
 from telegram import Bot
-import os
+import requests
 
 # تنظیمات
 TELEGRAM_TOKEN = "6520725138:AAF9YpmlJ0ypzFyZwaNr0hf_60xh9RW_kFc"
 CHANNEL_ID = "@TVCminer"
 GITHUB_REPO = 'https://api.github.com/repos/mmjavadgh/v2rayPy/contents/links.txt'
 GITHUB_TOKEN = "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"
+
+# الگوی شناسایی لینک‌های v2ray
+v2ray_link_pattern = re.compile(r'vmess://[a-zA-Z0-9+/=_-]+')
+
+def get_v2ray_links_from_text(text):
+    # یافتن تمام لینک‌های v2ray در یک متن
+    links = v2ray_link_pattern.findall(text)
+    return links
 
 def get_links_from_channel():
     bot = Bot(token=TELEGRAM_TOKEN)
@@ -17,7 +25,9 @@ def get_links_from_channel():
         if message.entities:
             for entity in message.entities:
                 if entity.type == 'url':
-                    links.append(message.text[entity.offset:entity.offset+entity.length])
+                    # افزودن لینک‌های v2ray به لیست لینک‌ها
+                    v2ray_links = get_v2ray_links_from_text(message.text[entity.offset:entity.offset + entity.length])
+                    links.extend(v2ray_links)
 
     return links
 
@@ -26,19 +36,31 @@ def update_github_file(links):
         'Authorization': f'token {GITHUB_TOKEN}',
     }
 
+    # دریافت محتوای فایل از گیت‌هاب
     current_content = requests.get(GITHUB_REPO, headers=headers).json()
+
+    if 'content' not in current_content:
+        print("Error: Couldn't retrieve file content from GitHub.")
+        return
+
     current_sha = current_content['sha']
-    
+
+    # ایجاد محتوای جدید با لینک‌های v2ray
     new_content = f"{'\n'.join(links)}\n"
-    
+
     data = {
         'message': 'Update links.txt',
         'content': new_content,
         'sha': current_sha,
     }
 
+    # ارسال درخواست به گیت‌هاب برای به‌روزرسانی فایل
     response = requests.put(GITHUB_REPO, headers=headers, json=data)
-    print(response.json())
+
+    if response.status_code == 200:
+        print("File updated successfully on GitHub.")
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
 
 if __name__ == "__main__":
     links = get_links_from_channel()
